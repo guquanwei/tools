@@ -37,21 +37,20 @@ class ImageLabeler(tkinter.Frame):
         tkinter.Frame.__init__(self, parent)
         self.parent = parent
         self.parent.geometry("900x600")
-        with open('E:/Dataset/zkdn_ai.yaml', encoding='utf-8') as f:
+        with open('D:\shuju\pa\zkdn_ai.yaml', encoding='utf-8') as f:
             d = yaml.safe_load(f)
         self.names       = d["names"]
         self.colors      = Colors() #{0: '#FF3030', 61: '#FF3030', 140: '#00FFFF', 141: "#7FFF00", 142: '#00FFFF', 147: '#FF3030', 150: "#7FFF00", 95: '#0000FF', 96: '#0000FF', 126: '#7FFF00', 127: '#7F6600', 221: '#FF3030', 222: '#7FFF00', 218: '#7FFF00'} ###
-        self.menu_items  = [f"{i} - {self.names[i]}" for i in [0, 1, 2, 3, 5, 7, 147, 154, 200, 221, 222, 230]]
-        self.menu_items.append("delete")
+        self.menu_items  = ["delete", "0 - person", "1 - bicycle", "2 - car", "149 - person_gates", "150 - roadway_gates", "151 - roadway_barriers"]
         
 
         """ set images_labels path """
-        path = pathlib.PureWindowsPath(  r'F:\exp9'  ).as_posix() ### ********* 'set images_labels path' ********* ###
+        path = pathlib.PureWindowsPath(  r'D:\shuju\pa\易县\yixian_data\221_Travel_merchant_游商小贩\haidian2'  ).as_posix() ### ********* 'set images_labels path' ********* ###
         """ set images_labels path """
 
         
-        self.image_index = 0  ### set image index
-        self.class_id    = 221
+        self.image_index = 170  ### set image index
+        self.class_id    = 95
         self.color       = '#FF3030'
         self.imagelist   = find_files(path, ['.mp4', '.jpg', '.jpeg', '.png', '.bmp',   '.cur', '.gif', '.ico', '.jfif', '.pcx', '.tiff', '.tga', '.webp', '.yuv'])
         """ Initialize bbox variable. """
@@ -164,11 +163,11 @@ class ImageLabeler(tkinter.Frame):
             self.parent.title(f"{self.image_index+1}/{len(self.imagelist)} {self.imagelist[self.image_index]}")
     
     def add_bbox(self, cid, x1, y1, x2, y2, focus):
-        # self.class_id = cid
-        color = self.colors(cid)
+        self.class_id = cid
+        color = self.colors(self.class_id)
         self.bbox_id = self.canvas.create_rectangle(x1, y1, x2, y2, outline=color, width=self.R-3)
-        self.bboxes[self.bbox_id] = {"class_id": cid, "xyxy": [x1, y1, x2, y2], "focus": focus, "text": None, "textbg": None, "marker": 4, "NW": None, "N": None, "NE": None, "E": None, "SE": None, "S": None, "SW": None, "W": None, "log": []}
-        self.bboxes[self.bbox_id]["text"] = self.canvas.create_text(x1, y1, text=f"{cid} - {self.names[cid]}", anchor='sw', font=("Purisa", self.R*3), fill=color, tag="text")
+        self.bboxes[self.bbox_id] = {"class_id": self.class_id, "xyxy": [x1, y1, x2, y2], "focus": focus, "text": None, "textbg": None, "marker": 4, "NW": None, "N": None, "NE": None, "E": None, "SE": None, "S": None, "SW": None, "W": None, "log": []}
+        self.bboxes[self.bbox_id]["text"] = self.canvas.create_text(x1, y1, text=f"{self.class_id} - {self.names[self.class_id]}", anchor='sw', font=("Purisa", self.R*3), fill=color, tag="text")
         l, t, r, b = self.canvas.bbox(self.bboxes[self.bbox_id]["text"])
         anchor = 'se' if r > self.imgsz.width else 'nw' if t < 0 else 'sw'
         self.canvas.itemconfig(self.bboxes[self.bbox_id]["text"], anchor=anchor)
@@ -231,6 +230,7 @@ class ImageLabeler(tkinter.Frame):
                     self.canvas.itemconfig(bbox_id, width=self.R-3, dash=(100, 3))
                 else:
                     self.canvas.itemconfig(bbox_id, width=self.R-3, dash=())
+
 
         if len(self.imagelist):
             self.parent.title(f"{self.image_index+1}/{len(self.imagelist)} {self.imagelist[self.image_index]}")
